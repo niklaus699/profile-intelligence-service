@@ -1,0 +1,6 @@
+flask
+flask-sqlalchemy
+flask-cors
+requests
+uuid6
+gunicorn
