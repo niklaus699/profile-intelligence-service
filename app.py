@@ -8,10 +8,14 @@ app = Flask(__name__)
 CORS(app)
 
 # Database Configuration for Postgres
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///profiles.db')
-if database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
-
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Fix the 'postgres' vs 'postgresql' protocol mismatch
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+else:
+    # Fallback for local development
+    database_url = 'sqlite:///profiles.db'
 # Database
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -49,7 +53,7 @@ class Profile(db.Model):
 
 with app.app_context():
     db.create_all()
-    
+
 
 def get_age_group(age):
     if age <= 12: return "child"
