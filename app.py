@@ -49,7 +49,7 @@ class Profile(db.Model):
     country_id = db.Column(db.String(10), index=True)
     country_name = db.Column(db.String(100))
     country_probability = db.Column(db.Float)
-    created_at = db.Column(db.String(30))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 with app.app_context():
     db.create_all()
@@ -62,21 +62,21 @@ def get_age_group(age):
     return "senior"
 
 def format_profile(p):
+    # Fallback if created_at is None
+    date_str = p.created_at.strftime('%Y-%m-%dT%H:%M:%SZ') if p.created_at else datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    
     return {
         "id": p.id, 
         "name": p.name, 
         "gender": p.gender,
         "gender_probability": p.gender_probability, 
-        "sample_size": p.sample_size,
-        "age": p.age, 
+        "age": p.age,
         "age_group": p.age_group, 
         "country_id": p.country_id,
-        "country_name": p.country_name,
-        "country_probability": p.country_probability, 
-        # Format as UTC ISO 8601 string
-        "created_at": p.created_at.strftime('%Y-%m-%dT%H:%M:%SZ') 
+        "country_name": p.country_name, 
+        "country_probability": p.country_probability,
+        "created_at": date_str
     }
-
 # --- ENDPOINTS ---
 
 @app.route('/api/profiles', methods=['POST'])
